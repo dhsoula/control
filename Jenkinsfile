@@ -1,16 +1,17 @@
 pipeline {
-    agent any  // Exécution sur l'agent de Jenkins sans utiliser Docker
+    agent any  // Exécution sur un agent de Jenkins disponible
 
     environment {
         SONAR_TOKEN = credentials('sonar_token')
         SONAR_HOST_URL = 'http://localhost:9000'  // URL de votre serveur SonarQube
+        GITBASH_PATH = 'C:\Program Files\Git\bin\bash.exe'  // Chemin vers Git Bash
     }
 
     stages {
         stage('Checkout') {
             steps {
                 script {
-                    // Cloner le dépôt Git dans Jenkins
+                    // Cloner le dépôt Git
                     checkout scm
                 }
             }
@@ -19,9 +20,9 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    // Installer Composer et les dépendances PHP
+                    // Installer les dépendances PHP avec Composer via Git Bash
                     echo "Installation des dépendances PHP avec Composer"
-                    sh 'composer install'  // Assurez-vous que Composer est installé sur l'agent Jenkins
+                    bat "\"${env.GITBASH_PATH}\" -c 'composer install'"  // Utilisation de Git Bash pour exécuter Composer
                 }
             }
         }
@@ -29,15 +30,9 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    // Exécuter l'analyse SonarQube avec sonar-scanner
+                    // Exécuter l'analyse SonarQube avec sonar-scanner via Git Bash
                     echo "Exécution de l'analyse SonarQube"
-                    sh '''
-                        sonar-scanner \
-                        -Dsonar.projectKey=control \
-                        -Dsonar.sources=. \
-                        -Dsonar.host.url=$SONAR_HOST_URL \
-                        -Dsonar.login=$SONAR_TOKEN
-                    '''
+                    bat "\"${env.GITBASH_PATH}\" -c 'sonar-scanner -Dsonar.projectKey=control -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN'"
                 }
             }
         }
@@ -45,9 +40,9 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    // Déployer l'application dans un répertoire de production
+                    // Déployer l'application
                     echo "Déploiement de l'application"
-                    sh 'mkdir -p /path/to/production/folder && cp -r * /path/to/production/folder'
+                    bat "\"${env.GITBASH_PATH}\" -c 'mkdir -p /path/to/production/folder && cp -r * /path/to/production/folder'"
                 }
             }
         }
@@ -62,3 +57,4 @@ pipeline {
         }
     }
 }
+
