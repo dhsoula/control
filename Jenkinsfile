@@ -39,11 +39,11 @@ pipeline {
                     script {
                         // Commande pour exécuter l'analyse de SonarQube avec le token récupéré
                         sh '''
-                            sonar-scanner \
-                                -Dsonar.projectKey=tp-jenkins \
-                                -Dsonar.sources=. \  // Pointing to the root directory
-                                -Dsonar.tests=test \  // Including the 'test' folder for tests
-                                -Dsonar.host.url=http://localhost:9000 \
+                            sonar-scanner
+                                -Dsonar.projectKey=tp-jenkins
+                                -Dsonar.sources=.
+                                -Dsonar.tests=test
+                                -Dsonar.host.url=http://localhost:9000
                                 -Dsonar.token=${SONAR_TOKEN}  // Utilisation du token SonarQube récupéré des credentials Jenkins
                         '''
                     }
