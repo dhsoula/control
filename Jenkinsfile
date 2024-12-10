@@ -1,47 +1,60 @@
 pipeline {
     agent any
-
-    environment {
-        SONAR_TOKEN = credentials('sonar-token')  // Utilise le token SonarQube stocké dans Jenkins sous 'sonar-token'
+    tools {
+        // Vous pouvez spécifier les outils nécessaires, comme NodeJS ou PHP si nécessaire
+        // nodejs 'NodeJS'  // Si vous avez besoin de NodeJS pour d'autres étapes
     }
-
+    environment {
+        // Récupération du token SonarQube à partir des credentials Jenkins
+        SONAR_TOKEN = credentials('sonar_token')  // Utilisation du secret 'sonar_token' stocké dans Jenkins
+    }
     stages {
-        stage('Clone Repository') {
+        // Etape pour cloner le dépôt depuis GitHub
+        stage('Checkout SCM') {
             steps {
-                // Clone le dépôt GitHub
-                git 'https://github.com/dhsoula/control.git'  // Remplacez par l'URL de votre dépôt
+                // Utilisation de l'ID des credentials Git pour le clonage
+                checkout scm
             }
         }
-
+        
+        // Etape pour installer les dépendances (si nécessaire, vous pouvez adapter cette étape selon vos besoins PHP)
         stage('Install Dependencies') {
             steps {
                 script {
-                    // Installe les dépendances PHP via Composer
-                    sh 'composer install'  // Utilisez 'sh' pour les environnements Unix, remplacez par 'bat' pour Windows si nécessaire
+                    // Par exemple, vous pouvez installer Composer si nécessaire pour PHP
+                    // sh 'composer install'   // Décommentez si vous utilisez Composer dans votre projet PHP
+                    echo 'Aucune dépendance spécifique à installer pour ce projet PHP'
                 }
             }
         }
-
+        
+        // Etape pour exécuter les tests (si vous avez des tests PHP à exécuter)
         stage('Run Tests') {
             steps {
                 script {
-                    // Exécute les tests unitaires avec PHPUnit
-                    sh 'vendor/bin/phpunit'  // Assurez-vous que PHPUnit est installé via Composer
+                    // Si vous avez des tests unitaires PHP à exécuter, utilisez la commande PHPUnit
+                    // sh 'phpunit --config phpunit.xml'  // Exemple de commande PHPUnit
+                    echo 'Aucun test PHP spécifique à exécuter'
                 }
             }
         }
-
+        
+        // Etape pour l'analyse de code avec SonarQube
         stage('Code Analysis') {
             steps {
-                // Exécute l'analyse de code avec SonarQube
-                sh '''
-                ./vendor/bin/sonar-scanner ^
-                  -Dsonar.projectKey=control-project ^
-                  -Dsonar.sources=. ^  // Dossier contenant le code source, incluant vos fichiers PHP
-                  -Dsonar.tests=tests ^  // Dossier contenant vos tests
-                  -Dsonar.host.url=http://localhost:9000 ^
-                  -Dsonar.token=$SONAR_TOKEN  // Utilise le token stocké dans les credentials Jenkins
-                '''
+                withSonarQubeEnv('SonarQube-Server') { // Assurez-vous que SonarQube est bien configuré dans Jenkins sous ce nom
+                    script {
+                        // Commande pour exécuter l'analyse de SonarQube avec le token récupéré
+                        sh '''
+                            sonar-scanner \
+                                -Dsonar.projectKey=tp-jenkins \
+                                -Dsonar.sources=. \  // Pointing to the root directory
+                                -Dsonar.tests=test \  // Including the 'test' folder for tests
+                                -Dsonar.host.url=http://localhost:9000 \
+                                -Dsonar.token=${SONAR_TOKEN}  // Utilisation du token SonarQube récupéré des credentials Jenkins
+                        '''
+                    }
+                }
             }
         }
     }
