@@ -1,5 +1,5 @@
 pipeline {
-    agent any  // Utilise n'importe quel nœud disponible (pas besoin du label 'linux')
+    agent any  // Utilise n'importe quel nœud disponible
 
     environment {
         SONAR_TOKEN = credentials('sonar_token')
@@ -16,8 +16,8 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    // Exécution sur nœud disponible (assurez-vous que Linux est installé si nécessaire)
-                    sh 'composer install'
+                    // Utiliser 'bat' pour exécuter des commandes Windows
+                    bat 'composer install'  // Remplace sh par bat
                 }
             }
         }
@@ -25,13 +25,13 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    sh '''
-                    sonar-scanner \
-                    -Dsonar.projectKey=control \
-                    -Dsonar.sources=. \
-                    -Dsonar.host.url=$SONAR_HOST_URL \
-                    -Dsonar.login=$SONAR_TOKEN
-                    '''
+                    bat """
+                    sonar-scanner ^
+                    -Dsonar.projectKey=control ^
+                    -Dsonar.sources=. ^
+                    -Dsonar.host.url=%SONAR_HOST_URL% ^
+                    -Dsonar.login=%SONAR_TOKEN%
+                    """
                 }
             }
         }
@@ -39,12 +39,13 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    sh '''
-                    mkdir -p /path/to/production/folder
-                    cp -r * /path/to/production/folder
-                    '''
+                    bat """
+                    mkdir C:\\path\\to\\production\\folder
+                    xcopy /E /I * C:\\path\\to\\production\\folder
+                    """
                 }
             }
         }
     }
 }
+
