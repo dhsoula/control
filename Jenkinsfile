@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'linux' }
+    agent any  // Utilise n'importe quel nœud disponible (pas besoin du label 'linux')
 
     environment {
         SONAR_TOKEN = credentials('sonar_token')
@@ -9,38 +9,41 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                echo "Cloning repository..."
                 git 'https://github.com/dhsoula/control.git'
             }
         }
 
         stage('Build') {
             steps {
-                echo "Running Composer install..."
-                sh 'composer install || echo "Composer install failed!"'
+                script {
+                    // Exécution sur nœud disponible (assurez-vous que Linux est installé si nécessaire)
+                    sh 'composer install'
+                }
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                echo "Starting SonarQube analysis..."
-                sh '''
-                sonar-scanner \
-                -Dsonar.projectKey=control \
-                -Dsonar.sources=. \
-                -Dsonar.host.url=$SONAR_HOST_URL \
-                -Dsonar.login=$SONAR_TOKEN || echo "Sonar analysis failed!"
-                '''
+                script {
+                    sh '''
+                    sonar-scanner \
+                    -Dsonar.projectKey=control \
+                    -Dsonar.sources=. \
+                    -Dsonar.host.url=$SONAR_HOST_URL \
+                    -Dsonar.login=$SONAR_TOKEN
+                    '''
+                }
             }
         }
 
         stage('Deploy') {
             steps {
-                echo "Deploying application..."
-                sh '''
-                mkdir -p /path/to/production/folder
-                cp -r * /path/to/production/folder || echo "Deploy failed!"
-                '''
+                script {
+                    sh '''
+                    mkdir -p /path/to/production/folder
+                    cp -r * /path/to/production/folder
+                    '''
+                }
             }
         }
     }
