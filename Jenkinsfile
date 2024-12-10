@@ -16,7 +16,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    // Commande pour installer les dépendances PHP sous Windows (ou utiliser un conteneur Linux)
+                    // Commande pour installer les dépendances PHP sous Windows
                     bat 'composer install'  // Assurez-vous que Composer est installé sur votre machine
                 }
             }
@@ -25,8 +25,8 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    // Utilisation de Docker pour exécuter SonarScanner avec votre projet dans un conteneur Linux
-                    sh """
+                    // Utilisation de Docker pour exécuter SonarScanner avec votre projet
+                    bat """
                         docker run --rm \
                         -e SONAR_TOKEN=${SONAR_TOKEN} \
                         -e SONAR_HOST_URL=${SONAR_HOST_URL} \
@@ -46,6 +46,5 @@ pipeline {
         }
     }
 }
-
 }
 
