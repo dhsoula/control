@@ -1,9 +1,9 @@
 pipeline {
-    agent any
+    agent { label 'linux' }  // Exécuter sur un nœud Linux
 
     environment {
-        SONAR_TOKEN = credentials('sonar_token')  // Token SonarQube
-        SONAR_HOST_URL = 'http://localhost:9000'  // URL de SonarQube
+        SONAR_TOKEN = credentials('sonar_token')
+        SONAR_HOST_URL = 'http://localhost:9000'
     }
 
     stages {
@@ -16,8 +16,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    // Utiliser Composer installé localement
-                    bat 'composer install'
+                    sh 'composer install'  // Utiliser sh sur un nœud Linux
                 }
             }
         }
@@ -39,7 +38,6 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    // Déploiement (par exemple : copier les fichiers)
                     sh '''
                     mkdir -p /path/to/production/folder
                     cp -r * /path/to/production/folder
@@ -49,5 +47,6 @@ pipeline {
         }
     }
 }
+
 
 
