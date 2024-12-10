@@ -1,6 +1,6 @@
 pipeline {
     agent any
-    
+
     environment {
         SONAR_TOKEN = credentials('sonar_token')  // Utilisation du token SonarQube
         SONAR_HOST_URL = 'http://localhost:9000'  // URL de votre serveur SonarQube
@@ -16,8 +16,13 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    // Commande pour installer les dépendances PHP sous Windows
-                    bat 'composer install'  // Assurez-vous que Composer est installé sur votre machine
+                    // Utilisation d'un conteneur PHP pour installer les dépendances
+                    sh """
+                        docker run --rm \
+                        -v ${WORKSPACE}:/app \
+                        -w /app \
+                        php:8.2-cli composer install
+                    """
                 }
             }
         }
@@ -25,8 +30,8 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    // Utilisation de Docker pour exécuter SonarScanner avec votre projet
-                    bat """
+                    // Utilisation de Docker pour exécuter SonarScanner
+                    sh """
                         docker run --rm \
                         -e SONAR_TOKEN=${SONAR_TOKEN} \
                         -e SONAR_HOST_URL=${SONAR_HOST_URL} \
@@ -39,8 +44,10 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    // Déploiement dans le dossier de production (sous Windows)
-                    bat 'xcopy * /path/to/production/folder /E /H /Y'
+                    // Déploiement (Linux)
+                    sh """
+                        cp -r ${WORKSPACE}/* /path/to/production/folder
+                    """
                 }
             }
         }
