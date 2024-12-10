@@ -16,8 +16,8 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    // Installer les dépendances avec Composer
-                    sh 'composer install'
+                    // Utiliser Composer installé localement
+                    bat 'composer install'
                 }
             }
         }
@@ -25,7 +25,6 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    // Lancer l'analyse SonarQube
                     sh '''
                     sonar-scanner \
                     -Dsonar.projectKey=control \
@@ -50,4 +49,5 @@ pipeline {
         }
     }
 }
+
 
