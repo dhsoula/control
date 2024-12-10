@@ -25,10 +25,8 @@ pipeline {
         // Etape pour exécuter les tests PHPUnit
         stage('Run Tests') {
             steps {
-                script {
-                    // Exécution des tests PHPUnit après l'installation des dépendances
-                    sh 'vendor/bin/phpunit --config phpunit.xml'  // Exécution des tests PHPUnit avec le fichier de configuration
-                }
+                sh 'chmod +x vendor/bin/phpunit' // Modifier les permissions
+                sh 'vendor/bin/phpunit --config phpunit.xml'
             }
         }
 
