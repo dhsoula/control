@@ -1,10 +1,10 @@
-pipeline { 
-    agent { label 'windows' }  // Ensure it runs on a Windows node
+pipeline {
+    agent any  // Run on any available agent
 
     environment {
         SONAR_TOKEN = credentials('sonar_token')
         SONAR_HOST_URL = 'http://localhost:9000'
-        GITBASH_PATH = 'C:\\Program Files\\Git\\bin\\bash.exe'  // Path to Git Bash
+        GITBASH_PATH = 'C:\\Program Files\\Git\\bin\\bash.exe'  // Path to Git Bash (for Windows)
     }
 
     stages {
@@ -20,7 +20,11 @@ pipeline {
             steps {
                 script {
                     echo "Installing PHP dependencies with Composer"
-                    bat "\"${env.GITBASH_PATH}\" -c 'composer install'"  // Using Git Bash to run Composer
+                    if (isUnix()) {
+                        sh 'composer install'  // For Linux or Unix-like agents
+                    } else {
+                        bat "\"${env.GITBASH_PATH}\" -c 'composer install'"  // For Windows agents
+                    }
                 }
             }
         }
@@ -29,7 +33,11 @@ pipeline {
             steps {
                 script {
                     echo "Running SonarQube analysis"
-                    bat "\"${env.GITBASH_PATH}\" -c 'sonar-scanner -Dsonar.projectKey=control -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN'"
+                    if (isUnix()) {
+                        sh "sonar-scanner -Dsonar.projectKey=control -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN"
+                    } else {
+                        bat "\"${env.GITBASH_PATH}\" -c 'sonar-scanner -Dsonar.projectKey=control -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN'"
+                    }
                 }
             }
         }
@@ -38,7 +46,11 @@ pipeline {
             steps {
                 script {
                     echo "Deploying the application"
-                    bat "\"${env.GITBASH_PATH}\" -c 'mkdir -p C:/path/to/production/folder && xcopy /e /i /h * C:/path/to/production/folder'"
+                    if (isUnix()) {
+                        sh 'mkdir -p /path/to/production/folder && cp -r * /path/to/production/folder'
+                    } else {
+                        bat "\"${env.GITBASH_PATH}\" -c 'mkdir -p C:/path/to/production/folder && xcopy /e /i /h * C:/path/to/production/folder'"
+                    }
                 }
             }
         }
