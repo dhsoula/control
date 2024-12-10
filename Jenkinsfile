@@ -1,23 +1,21 @@
 pipeline {
-    agent any  // Utilise n'importe quel nœud disponible
+    agent any
 
     environment {
-        SONAR_TOKEN = credentials('sonar_token')  // Assurez-vous que 'sonar_token' est bien configuré dans Jenkins
-        SONAR_HOST_URL = 'http://localhost:9000' // URL de votre instance SonarQube
+        SONAR_TOKEN = credentials('sonar_token')
+        SONAR_HOST_URL = 'http://localhost:9000'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // Télécharge le code depuis le dépôt Git
-                git branch: 'main', url: 'https://github.com/dhsoula/control.git'
+                git credentialsId: 'votre_identifiant_jenkins', branch: 'master', url: 'https://github.com/dhsoula/control.git'
             }
         }
 
         stage('Build') {
             steps {
                 script {
-                    // Exécute des commandes Windows pour installer les dépendances avec Composer
                     bat 'composer install'
                 }
             }
@@ -26,7 +24,6 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    // Analyse le code avec SonarQube
                     bat """
                     sonar-scanner ^
                     -Dsonar.projectKey=control ^
@@ -41,7 +38,6 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    // Copie les fichiers dans le dossier de production
                     bat """
                     mkdir C:\\path\\to\\production\\folder
                     xcopy /E /I * C:\\path\\to\\production\\folder
@@ -60,3 +56,4 @@ pipeline {
         }
     }
 }
+
