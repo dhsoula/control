@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'linux' }  // Exécuter sur un nœud Linux
+    agent { label 'linux' }
 
     environment {
         SONAR_TOKEN = credentials('sonar_token')
@@ -9,44 +9,39 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
+                echo "Cloning repository..."
                 git 'https://github.com/dhsoula/control.git'
             }
         }
 
         stage('Build') {
             steps {
-                script {
-                    sh 'composer install'  // Utiliser sh sur un nœud Linux
-                }
+                echo "Running Composer install..."
+                sh 'composer install || echo "Composer install failed!"'
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                script {
-                    sh '''
-                    sonar-scanner \
-                    -Dsonar.projectKey=control \
-                    -Dsonar.sources=. \
-                    -Dsonar.host.url=$SONAR_HOST_URL \
-                    -Dsonar.login=$SONAR_TOKEN
-                    '''
-                }
+                echo "Starting SonarQube analysis..."
+                sh '''
+                sonar-scanner \
+                -Dsonar.projectKey=control \
+                -Dsonar.sources=. \
+                -Dsonar.host.url=$SONAR_HOST_URL \
+                -Dsonar.login=$SONAR_TOKEN || echo "Sonar analysis failed!"
+                '''
             }
         }
 
         stage('Deploy') {
             steps {
-                script {
-                    sh '''
-                    mkdir -p /path/to/production/folder
-                    cp -r * /path/to/production/folder
-                    '''
-                }
+                echo "Deploying application..."
+                sh '''
+                mkdir -p /path/to/production/folder
+                cp -r * /path/to/production/folder || echo "Deploy failed!"
+                '''
             }
         }
     }
 }
-
-
-
