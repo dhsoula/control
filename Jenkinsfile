@@ -1,18 +1,17 @@
-pipeline {
-    agent any  // Exécution sur un agent de Jenkins disponible
+pipeline { 
+    agent { label 'windows' }  // Ensure it runs on a Windows node
 
     environment {
         SONAR_TOKEN = credentials('sonar_token')
         SONAR_HOST_URL = 'http://localhost:9000'
-        GITBASH_PATH = 'C:\\Program Files\\Git\\bin\\bash.exe'  // Chemin vers Git Bash
+        GITBASH_PATH = 'C:\\Program Files\\Git\\bin\\bash.exe'  // Path to Git Bash
     }
 
     stages {
         stage('Checkout') {
             steps {
                 script {
-                    // Cloner le dépôt Git
-                    checkout scm
+                    checkout scm  // Clone the repository
                 }
             }
         }
@@ -20,9 +19,8 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    // Installer les dépendances PHP avec Composer via Git Bash
-                    echo "Installation des dépendances PHP avec Composer"
-                    bat "\"${env.GITBASH_PATH}\" -c 'composer install'"  // Utilisation de Git Bash pour exécuter Composer
+                    echo "Installing PHP dependencies with Composer"
+                    bat "\"${env.GITBASH_PATH}\" -c 'composer install'"  // Using Git Bash to run Composer
                 }
             }
         }
@@ -30,8 +28,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    // Exécuter l'analyse SonarQube avec sonar-scanner via Git Bash
-                    echo "Exécution de l'analyse SonarQube"
+                    echo "Running SonarQube analysis"
                     bat "\"${env.GITBASH_PATH}\" -c 'sonar-scanner -Dsonar.projectKey=control -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN'"
                 }
             }
@@ -40,8 +37,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    // Déployer l'application
-                    echo "Déploiement de l'application"
+                    echo "Deploying the application"
                     bat "\"${env.GITBASH_PATH}\" -c 'mkdir -p C:/path/to/production/folder && xcopy /e /i /h * C:/path/to/production/folder'"
                 }
             }
@@ -50,10 +46,11 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline exécutée avec succès !'
+            echo 'Pipeline executed successfully!'
         }
         failure {
-            echo 'Pipeline échouée. Vérifiez les logs pour plus de détails.'
+            echo 'Pipeline failed. Check the logs for more details.'
         }
     }
 }
+
