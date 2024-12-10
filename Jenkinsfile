@@ -2,9 +2,8 @@ pipeline {
     agent any
 
     environment {
-        SONAR_TOKEN = credentials('sonar_token')  // Token pour SonarQube
+        SONAR_TOKEN = credentials('sonar_token')
         SONAR_HOST_URL = 'http://localhost:9000'
-        GIT_BASH = "C:/Program Files/Git/bin/bash.exe"  // Chemin vers Git Bash
     }
 
     stages {
@@ -17,8 +16,8 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    // Utilisation de Git Bash pour exécuter la commande Composer
-                    sh "\"${env.GIT_BASH}\" -c 'composer install'"
+                    // Exécute la commande avec Git Bash en utilisant son chemin complet
+                    sh '"C:/Program Files/Git/bin/bash.exe" -c "composer install"'
                 }
             }
         }
@@ -26,14 +25,8 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    // Utilisation de Git Bash pour exécuter sonar-scanner
-                    sh """
-                    \"${env.GIT_BASH}\" -c 'sonar-scanner ^
-                    -Dsonar.projectKey=control ^
-                    -Dsonar.sources=. ^
-                    -Dsonar.host.url=${env.SONAR_HOST_URL} ^
-                    -Dsonar.login=${env.SONAR_TOKEN}'
-                    """
+                    // Exécute l'analyse SonarQube avec Git Bash
+                    sh '"C:/Program Files/Git/bin/bash.exe" -c "sonar-scanner -Dsonar.projectKey=control -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN"'
                 }
             }
         }
@@ -41,11 +34,8 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    // Création du dossier et copie des fichiers de déploiement
-                    sh """
-                    \"${env.GIT_BASH}\" -c 'mkdir -p /c/path/to/production/folder'
-                    \"${env.GIT_BASH}\" -c 'cp -r * /c/path/to/production/folder'
-                    """
+                    // Déployer les fichiers avec Git Bash
+                    sh '"C:/Program Files/Git/bin/bash.exe" -c "mkdir -p C:/path/to/production/folder && xcopy /E /I * C:/path/to/production/folder"'
                 }
             }
         }
