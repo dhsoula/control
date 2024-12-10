@@ -1,9 +1,5 @@
 pipeline {
     agent any
-    tools {
-        // Vous pouvez spécifier les outils nécessaires, comme NodeJS ou PHP si nécessaire
-        // nodejs 'NodeJS'  // Si vous avez besoin de NodeJS pour d'autres étapes
-    }
     environment {
         // Récupération du token SonarQube à partir des credentials Jenkins
         SONAR_TOKEN = credentials('sonar_token')  // Utilisation du secret 'sonar_token' stocké dans Jenkins
@@ -12,33 +8,30 @@ pipeline {
         // Etape pour cloner le dépôt depuis GitHub
         stage('Checkout SCM') {
             steps {
-                // Utilisation de l'ID des credentials Git pour le clonage
                 checkout scm
             }
         }
-        
-        // Etape pour installer les dépendances (si nécessaire, vous pouvez adapter cette étape selon vos besoins PHP)
+
+        // Etape pour installer les dépendances avec Composer
         stage('Install Dependencies') {
             steps {
                 script {
-                    // Par exemple, vous pouvez installer Composer si nécessaire pour PHP
-                    // sh 'composer install'   // Décommentez si vous utilisez Composer dans votre projet PHP
-                    echo 'Aucune dépendance spécifique à installer pour ce projet PHP'
+                    // Installation des dépendances PHP avec Composer, incluant PHPUnit dans "require-dev"
+                    sh 'composer install --dev'  // Installe les dépendances définies dans composer.json (y compris PHPUnit)
                 }
             }
         }
-        
-        // Etape pour exécuter les tests (si vous avez des tests PHP à exécuter)
+
+        // Etape pour exécuter les tests PHPUnit
         stage('Run Tests') {
             steps {
                 script {
-                    // Si vous avez des tests unitaires PHP à exécuter, utilisez la commande PHPUnit
-                    // sh 'phpunit --config phpunit.xml'  // Exemple de commande PHPUnit
-                    echo 'Aucun test PHP spécifique à exécuter'
+                    // Exécution des tests PHPUnit après l'installation des dépendances
+                    sh 'vendor/bin/phpunit --config phpunit.xml'  // Exécution des tests PHPUnit avec le fichier de configuration
                 }
             }
         }
-        
+
         // Etape pour l'analyse de code avec SonarQube
         stage('Code Analysis') {
             steps {
