@@ -2,22 +2,23 @@ pipeline {
     agent any  // Utilise n'importe quel nœud disponible
 
     environment {
-        SONAR_TOKEN = credentials('sonar_token')
-        SONAR_HOST_URL = 'http://localhost:9000'
+        SONAR_TOKEN = credentials('sonar_token')  // Assurez-vous que 'sonar_token' est bien configuré dans Jenkins
+        SONAR_HOST_URL = 'http://localhost:9000' // URL de votre instance SonarQube
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/dhsoula/control.git'
+                // Télécharge le code depuis le dépôt Git
+                git branch: 'main', url: 'https://github.com/dhsoula/control.git'
             }
         }
 
         stage('Build') {
             steps {
                 script {
-                    // Utiliser 'bat' pour exécuter des commandes Windows
-                    bat 'composer install'  // Remplace sh par bat
+                    // Exécute des commandes Windows pour installer les dépendances avec Composer
+                    bat 'composer install'
                 }
             }
         }
@@ -25,6 +26,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
+                    // Analyse le code avec SonarQube
                     bat """
                     sonar-scanner ^
                     -Dsonar.projectKey=control ^
@@ -39,6 +41,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
+                    // Copie les fichiers dans le dossier de production
                     bat """
                     mkdir C:\\path\\to\\production\\folder
                     xcopy /E /I * C:\\path\\to\\production\\folder
@@ -47,5 +50,13 @@ pipeline {
             }
         }
     }
-}
 
+    post {
+        success {
+            echo 'Pipeline exécutée avec succès !'
+        }
+        failure {
+            echo 'Pipeline échouée. Vérifiez les logs pour plus de détails.'
+        }
+    }
+}
