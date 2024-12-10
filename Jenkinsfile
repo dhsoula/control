@@ -4,7 +4,7 @@ pipeline {
     environment {
         SONAR_TOKEN = credentials('sonar_token')
         SONAR_HOST_URL = 'http://localhost:9000'  // URL de votre serveur SonarQube
-        GITBASH_PATH = 'C:\Program Files\Git\bin\bash.exe'  // Chemin vers Git Bash
+        GITBASH_PATH = 'C:\\Program Files\\Git\\bin\\bash.exe'  // Chemin vers Git Bash avec doubles barres obliques inverses
     }
 
     stages {
@@ -40,9 +40,9 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    // Déployer l'application
+                    // Déployer l'application (commande Windows)
                     echo "Déploiement de l'application"
-                    bat "\"${env.GITBASH_PATH}\" -c 'mkdir -p /path/to/production/folder && cp -r * /path/to/production/folder'"
+                    bat "\"${env.GITBASH_PATH}\" -c 'mkdir -p C:/path/to/production/folder && xcopy /e /i /h * C:/path/to/production/folder'"
                 }
             }
         }
@@ -57,4 +57,3 @@ pipeline {
         }
     }
 }
-
