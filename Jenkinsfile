@@ -2,13 +2,12 @@ pipeline {
     agent any  // Exécution sur un agent de Jenkins disponible
 
     environment {
-        SONAR_TOKEN = credentials('sonar_token')  // Récupération du token SonarQube depuis les credentials
-        SONAR_HOST_URL = 'http://localhost:9000'  // URL de votre serveur SonarQube
-        GITBASH_PATH = 'C:\\Program Files\\Git\\bin\\bash.exe'  // Chemin vers Git Bash avec doubles barres obliques inverses
+        SONAR_TOKEN = credentials('sonar_token')
+        SONAR_HOST_URL = 'http://localhost:9000'
+        GITBASH_PATH = 'C:\\Program Files\\Git\\bin\\bash.exe'  // Chemin vers Git Bash
     }
 
     stages {
-        // Étape 1: Checkout du code source
         stage('Checkout') {
             steps {
                 script {
@@ -18,35 +17,32 @@ pipeline {
             }
         }
 
-        // Étape 2: Installation des dépendances avec Composer via Git Bash
         stage('Install Dependencies') {
             steps {
                 script {
+                    // Installer les dépendances PHP avec Composer via Git Bash
                     echo "Installation des dépendances PHP avec Composer"
-                    // Exécution de Composer via Git Bash en utilisant sh
-                    sh "\"${env.GITBASH_PATH}\" -c 'composer install'"
+                    bat "\"${env.GITBASH_PATH}\" -c 'composer install'"  // Utilisation de Git Bash pour exécuter Composer
                 }
             }
         }
 
-        // Étape 3: Analyse SonarQube via Git Bash
         stage('SonarQube Analysis') {
             steps {
                 script {
+                    // Exécuter l'analyse SonarQube avec sonar-scanner via Git Bash
                     echo "Exécution de l'analyse SonarQube"
-                    // Exécution du scanner SonarQube via Git Bash
-                    sh "\"${env.GITBASH_PATH}\" -c 'sonar-scanner -Dsonar.projectKey=control -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN'"
+                    bat "\"${env.GITBASH_PATH}\" -c 'sonar-scanner -Dsonar.projectKey=control -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN'"
                 }
             }
         }
 
-        // Étape 4: Déploiement de l'application
         stage('Deploy') {
             steps {
                 script {
+                    // Déployer l'application
                     echo "Déploiement de l'application"
-                    // Création du dossier de production et copie des fichiers
-                    sh "\"${env.GITBASH_PATH}\" -c 'mkdir -p C:/path/to/production/folder && xcopy /e /i /h * C:/path/to/production/folder'"
+                    bat "\"${env.GITBASH_PATH}\" -c 'mkdir -p C:/path/to/production/folder && xcopy /e /i /h * C:/path/to/production/folder'"
                 }
             }
         }
