@@ -3,6 +3,7 @@ pipeline {
     
     environment {
         SONAR_TOKEN = credentials('sonar_token')  // Utilisation du token SonarQube
+        SONAR_HOST_URL = 'http://localhost:9000'  // URL de votre serveur SonarQube
     }
 
     stages {
@@ -15,21 +16,26 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    // Utilisez des commandes compatibles Windows
-                    bat 'composer install'  // Cette commande fonctionne sous Windows
+                    // Commande de build PHP sous Windows
+                    bat 'composer install'  // Assurez-vous que vous avez Composer installé sur votre machine
                 }
             }
         }
-
+        
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    // Commande SonarScanner pour analyser le code PHP
-                    bat "sonar-scanner -Dsonar.projectKey=control -Dsonar.host.url=http://localhost:9000 -Dsonar.login=${SONAR_TOKEN}"
+                    // Utilisation de Docker pour exécuter SonarScanner
+                    bat """
+                        docker run --rm \
+                        -e SONAR_TOKEN=${SONAR_TOKEN} \
+                        -e SONAR_HOST_URL=${SONAR_HOST_URL} \
+                        -v ${WORKSPACE}:/usr/src sonarsource/sonar-scanner-cli
+                    """
                 }
             }
         }
-
+        
         stage('Deploy') {
             steps {
                 script {
