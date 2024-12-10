@@ -20,16 +20,16 @@ pipeline {
                 }
             }
         }
-        
+
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    // Commande SonarQube pour analyser le code avec mvn
-                    bat "mvn sonar:sonar -Dsonar.projectKey=control -Dsonar.host.url=http://localhost:9000 -Dsonar.login=${SONAR_TOKEN}"
+                    // Commande SonarScanner pour analyser le code PHP
+                    bat "sonar-scanner -Dsonar.projectKey=control -Dsonar.host.url=http://localhost:9000 -Dsonar.login=${SONAR_TOKEN}"
                 }
             }
         }
-        
+
         stage('Deploy') {
             steps {
                 script {
