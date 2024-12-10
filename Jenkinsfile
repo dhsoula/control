@@ -2,7 +2,7 @@ pipeline {
     agent {
         docker {
             image 'php:8.2-cli' // L'image Docker avec PHP
-            args '-v /var/run/docker.sock:/var/run/docker.sock' // Monte le socket Docker
+            args '-v npipe:////./pipe/docker_engine:/var/run/docker.sock' // Montée correcte pour Windows
         }
     }
 
@@ -56,3 +56,4 @@ pipeline {
         }
     }
 }
+
