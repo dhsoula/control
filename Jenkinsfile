@@ -1,10 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'php:8.2-cli' // L'image Docker avec PHP
-            args '-v npipe:////./pipe/docker_engine:/var/run/docker.sock' // Montée correcte pour Windows
-        }
-    }
+    agent any
 
     environment {
         SONAR_TOKEN = credentials('sonar_token')  // Token SonarQube
@@ -30,15 +25,14 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    docker.image('sonarsource/sonar-scanner-cli').inside {
-                        sh '''
-                        sonar-scanner \
-                        -Dsonar.projectKey=control \
-                        -Dsonar.sources=. \
-                        -Dsonar.host.url=$SONAR_HOST_URL \
-                        -Dsonar.login=$SONAR_TOKEN
-                        '''
-                    }
+                    // Lancer l'analyse SonarQube
+                    sh '''
+                    sonar-scanner \
+                    -Dsonar.projectKey=control \
+                    -Dsonar.sources=. \
+                    -Dsonar.host.url=$SONAR_HOST_URL \
+                    -Dsonar.login=$SONAR_TOKEN
+                    '''
                 }
             }
         }
