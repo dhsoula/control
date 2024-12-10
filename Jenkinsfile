@@ -2,21 +2,23 @@ pipeline {
     agent any
 
     environment {
-        SONAR_TOKEN = credentials('sonar_token')
+        SONAR_TOKEN = credentials('sonar_token')  // Token pour SonarQube
         SONAR_HOST_URL = 'http://localhost:9000'
+        GIT_BASH = "C:/Program Files/Git/bin/bash.exe"  // Chemin vers Git Bash
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git credentialsId: 'votre_identifiant_jenkins', branch: 'master', url: 'https://github.com/dhsoula/control.git'
+                git credentialsId: '5f144011-1480-4623-ae64-dc4d512d9045', branch: 'master', url: 'https://github.com/dhsoula/control.git'
             }
         }
 
         stage('Build') {
             steps {
                 script {
-                    bat 'composer install'
+                    // Utilisation de Git Bash pour exécuter la commande Composer
+                    sh "\"${env.GIT_BASH}\" -c 'composer install'"
                 }
             }
         }
@@ -24,12 +26,13 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    bat """
-                    sonar-scanner ^
+                    // Utilisation de Git Bash pour exécuter sonar-scanner
+                    sh """
+                    \"${env.GIT_BASH}\" -c 'sonar-scanner ^
                     -Dsonar.projectKey=control ^
                     -Dsonar.sources=. ^
-                    -Dsonar.host.url=%SONAR_HOST_URL% ^
-                    -Dsonar.login=%SONAR_TOKEN%
+                    -Dsonar.host.url=${env.SONAR_HOST_URL} ^
+                    -Dsonar.login=${env.SONAR_TOKEN}'
                     """
                 }
             }
@@ -38,9 +41,10 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    bat """
-                    mkdir C:\\path\\to\\production\\folder
-                    xcopy /E /I * C:\\path\\to\\production\\folder
+                    // Création du dossier et copie des fichiers de déploiement
+                    sh """
+                    \"${env.GIT_BASH}\" -c 'mkdir -p /c/path/to/production/folder'
+                    \"${env.GIT_BASH}\" -c 'cp -r * /c/path/to/production/folder'
                     """
                 }
             }
@@ -56,4 +60,3 @@ pipeline {
         }
     }
 }
-
