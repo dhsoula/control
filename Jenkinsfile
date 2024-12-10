@@ -20,9 +20,10 @@ pipeline {
             steps {
                 script {
                     echo "Installing Composer"
-                    sh 'curl -sS https://getcomposer.org/installer | php'  // Install Composer
-                    sh 'mv composer.phar /usr/local/bin/composer'        // Move it to PATH
-                    sh 'export PATH=$PATH:/usr/local/bin'                 // Ensure it's in PATH
+                    // Installer Composer avec Git Bash
+                    bat '"C:\\Program Files\\Git\\bin\\bash.exe" -c "curl -sS https://getcomposer.org/installer | php"'
+                    bat '"C:\\Program Files\\Git\\bin\\bash.exe" -c "mv composer.phar /usr/local/bin/composer"'
+                    bat '"C:\\Program Files\\Git\\bin\\bash.exe" -c "export PATH=$PATH:/usr/local/bin"'
                 }
             }
         }
@@ -31,7 +32,18 @@ pipeline {
             steps {
                 script {
                     echo "Installing PHP dependencies with Composer"
-                    sh 'composer install'  // Now Composer should work
+                    // Installer les dépendances PHP avec Composer
+                    bat '"C:\\Program Files\\Git\\bin\\bash.exe" -c "composer install"'
+                }
+            }
+        }
+
+        stage('Phing Build') {
+            steps {
+                script {
+                    echo "Running Phing Build"
+                    // Utiliser Phing pour effectuer le build (assurez-vous que Phing est installé)
+                    bat '"C:\\Program Files\\Git\\bin\\bash.exe" -c "phing build"'
                 }
             }
         }
@@ -40,7 +52,8 @@ pipeline {
             steps {
                 script {
                     echo "Running SonarQube analysis"
-                    sh "sonar-scanner -Dsonar.projectKey=control -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN"
+                    // Lancer l'analyse SonarQube avec Sonar Scanner
+                    bat '"C:\\Program Files\\Git\\bin\\bash.exe" -c "sonar-scanner -Dsonar.projectKey=control -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN"'
                 }
             }
         }
@@ -49,7 +62,8 @@ pipeline {
             steps {
                 script {
                     echo "Deploying the application"
-                    sh 'mkdir -p /path/to/production/folder && cp -r * /path/to/production/folder'
+                    // Copier les fichiers vers le dossier de production
+                    bat '"C:\\Program Files\\Git\\bin\\bash.exe" -c "mkdir -p /path/to/production/folder && cp -r * /path/to/production/folder"'
                 }
             }
         }
@@ -64,4 +78,5 @@ pipeline {
         }
     }
 }
+
 
