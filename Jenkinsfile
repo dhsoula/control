@@ -1,9 +1,14 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'php:8.2-cli' // L'image Docker avec PHP
+            args '-v /var/run/docker.sock:/var/run/docker.sock' // Monte le socket Docker
+        }
+    }
 
     environment {
-        SONAR_TOKEN = credentials('sonar_token')  // Utilisation du token SonarQube
-        SONAR_HOST_URL = 'http://localhost:9000'  // URL de votre serveur SonarQube
+        SONAR_TOKEN = credentials('sonar_token')  // Token SonarQube
+        SONAR_HOST_URL = 'http://localhost:9000'  // URL de SonarQube
     }
 
     stages {
@@ -16,38 +21,36 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    // Utilisation d'un conteneur PHP pour installer les dépendances
-                    sh """
-                        docker run --rm \
-                        -v ${WORKSPACE}:/app \
-                        -w /app \
-                        php:8.2-cli composer install
-                    """
+                    // Installer les dépendances avec Composer
+                    sh 'composer install'
                 }
             }
         }
-        
+
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    // Utilisation de Docker pour exécuter SonarScanner
-                    sh """
-                        docker run --rm \
-                        -e SONAR_TOKEN=${SONAR_TOKEN} \
-                        -e SONAR_HOST_URL=${SONAR_HOST_URL} \
-                        -v ${WORKSPACE}:/usr/src sonarsource/sonar-scanner-cli
-                    """
+                    docker.image('sonarsource/sonar-scanner-cli').inside {
+                        sh '''
+                        sonar-scanner \
+                        -Dsonar.projectKey=control \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=$SONAR_HOST_URL \
+                        -Dsonar.login=$SONAR_TOKEN
+                        '''
+                    }
                 }
             }
         }
-        
+
         stage('Deploy') {
             steps {
                 script {
-                    // Déploiement (Linux)
-                    sh """
-                        cp -r ${WORKSPACE}/* /path/to/production/folder
-                    """
+                    // Déploiement (par exemple : copier les fichiers)
+                    sh '''
+                    mkdir -p /path/to/production/folder
+                    cp -r * /path/to/production/folder
+                    '''
                 }
             }
         }
