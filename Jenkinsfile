@@ -3,7 +3,7 @@ pipeline {
     
     tools {
         // Utilisation du bon nom de l'outil configuré dans Jenkins
-        sonarQubeScanner 'SonarQubeScanner'  // Nom correct de l'outil configuré
+        sonarQube 'SonarQube'  // Nom de l'outil SonarQube configuré dans Jenkins
     }
     
     environment {
@@ -35,11 +35,22 @@ pipeline {
             }
         }
         
-        stage('Code Analysis') {
+        stage('Code Linting with PHP_CodeSniffer') {
             steps {
                 script {
-                    // Exécuter SonarQube Scanner avec les paramètres nécessaires
-                    withSonarQubeEnv('SonarQube') {  // Utilise l'environnement SonarQube configuré
+                    // Installer PHP_CodeSniffer via Composer si nécessaire
+                    sh 'composer require --dev squizlabs/php_codesniffer'
+                    // Lancer l'analyse de code avec PHP_CodeSniffer
+                    sh 'vendor/bin/phpcs --standard=PSR2 src/ tests/'
+                }
+            }
+        }
+        
+        stage('Code Analysis with SonarQube') {
+            steps {
+                script {
+                    // Exécuter SonarQube pour l'analyse de code
+                    withSonarQubeEnv('SonarQube') {  // Utilisation de l'environnement SonarQube configuré
                         sh """
                             sonar-scanner \
                             -Dsonar.projectKey=tp-jenkinse \
