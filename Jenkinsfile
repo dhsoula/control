@@ -30,6 +30,15 @@ pipeline {
             }
         }
 
+        stage('Test Docker') {
+            steps {
+                script {
+                    // Exécute un conteneur simple pour tester Docker
+                    sh 'docker run --rm hello-world'
+                }
+            }
+        }
+
         stage('SonarQube Analysis') {
             steps {
                 script {
