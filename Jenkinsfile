@@ -37,7 +37,7 @@ pipeline {
         // Etape pour l'analyse de code avec SonarQube
         stage('Code Analysis') {
             steps {
-                withSonarQubeEnv('SonarQube-Server') {  // Assurez-vous que SonarQube est bien configuré dans Jenkins sous ce nom
+                withSonarQubeEnv('SonarQube server') {  // Assurez-vous que SonarQube est bien configuré dans Jenkins sous ce nom
                     script {
                         // Exécuter l'analyse de SonarQube avec le token récupéré
                         sh '''
