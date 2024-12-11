@@ -1,18 +1,18 @@
 pipeline {
     agent any
-    
+
     environment {
-        SONAR_TOKEN = credentials('sonar_token')
+        SONAR_TOKEN = credentials('sonar_token') // Assure-toi que le token est bien configuré
         SONAR_HOST_URL = 'http://localhost:9000' // URL du serveur SonarQube
     }
-    
+
     stages {
         stage('Checkout SCM') {
             steps {
                 checkout scm
             }
         }
-        
+
         stage('Install Dependencies') {
             steps {
                 script {
@@ -20,7 +20,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Run Tests') {
             steps {
                 script {
@@ -29,18 +29,20 @@ pipeline {
                 }
             }
         }
-    }
-    stage('SonarQube Analysis') {
-    steps {
-        script {
-            withSonarQubeEnv('MySonarQubeServer') {
-                sh 'mvn clean verify sonar:sonar'
+
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    // Utilisation de l'environnement SonarQube configuré dans Jenkins
+                    withSonarQubeEnv('MySonarQubeServer') {
+                        // L'outil de build ici pourrait être Maven ou un autre (exemple avec Maven)
+                        sh 'mvn clean verify sonar:sonar'
+                    }
+                }
             }
         }
     }
-}
 
-    
     post {
         success {
             echo 'Pipeline completed successfully.'
@@ -50,4 +52,3 @@ pipeline {
         }
     }
 }
-
