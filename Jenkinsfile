@@ -30,6 +30,16 @@ pipeline {
             }
         }
     }
+    stage('SonarQube Analysis') {
+    steps {
+        script {
+            withSonarQubeEnv('MySonarQubeServer') {
+                sh 'mvn clean verify sonar:sonar'
+            }
+        }
+    }
+}
+
     
     post {
         success {
