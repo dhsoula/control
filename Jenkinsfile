@@ -16,8 +16,8 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    // Installation des dépendances PHP avec Composer, incluant PHPUnit dans "require-dev"
-                    sh 'composer install --dev'  // Installe les dépendances définies dans composer.json (y compris PHPUnit)
+                    // Installation des dépendances PHP avec Composer
+                    sh 'composer install --no-interaction --prefer-dist'  // Installe les dépendances définies dans composer.json
                 }
             }
         }
@@ -25,28 +25,41 @@ pipeline {
         // Etape pour exécuter les tests PHPUnit
         stage('Run Tests') {
             steps {
-                sh 'chmod +x vendor/bin/phpunit' // Modifier les permissions
-                sh 'vendor/bin/phpunit --config phpunit.xml'
+                script {
+                    // Modifier les permissions du fichier phpunit pour le rendre exécutable
+                    sh 'chmod +x vendor/bin/phpunit'
+                    // Exécuter les tests PHPUnit en utilisant le fichier de configuration phpunit.xml
+                    sh 'vendor/bin/phpunit --config phpunit.xml'
+                }
             }
         }
 
         // Etape pour l'analyse de code avec SonarQube
         stage('Code Analysis') {
             steps {
-                withSonarQubeEnv('SonarQube-Server') { // Assurez-vous que SonarQube est bien configuré dans Jenkins sous ce nom
+                withSonarQubeEnv('SonarQube-Server') {  // Assurez-vous que SonarQube est bien configuré dans Jenkins sous ce nom
                     script {
-                        // Commande pour exécuter l'analyse de SonarQube avec le token récupéré
+                        // Exécuter l'analyse de SonarQube avec le token récupéré
                         sh '''
                             sonar-scanner
                                 -Dsonar.projectKey=tp-jenkins
                                 -Dsonar.sources=.
-                                -Dsonar.tests=test
+                                -Dsonar.tests=tests  // Modifier le chemin des tests si nécessaire
                                 -Dsonar.host.url=http://localhost:9000
                                 -Dsonar.token=${SONAR_TOKEN}  // Utilisation du token SonarQube récupéré des credentials Jenkins
                         '''
                     }
                 }
             }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully.'
+        }
+        failure {
+            echo 'Pipeline failed.'
         }
     }
 }
