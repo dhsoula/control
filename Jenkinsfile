@@ -2,22 +2,22 @@ pipeline {
     agent any
 
     environment {
-        SONAR_TOKEN = credentials('sonar-token2')
-        SONAR_HOST_URL = 'http://localhost:9000'
-        SONAR_SCANNER_HOME = 'C:\\sonar-scanner-6.2.1.4610-windows-x64'  // Pour Windows
+        SONAR_TOKEN = credentials('sonar-token2')  // Get the SonarQube token from Jenkins credentials
+        SONAR_HOST_URL = 'http://localhost:9000'   // SonarQube server URL
+        SONAR_SCANNER_HOME = 'C:\\sonar-scanner-6.2.1.4610-windows-x64'  // Path to SonarQube Scanner on Windows
     }
 
     stages {
         stage('Checkout SCM') {
             steps {
-                checkout scm
+                checkout scm  // Checkout the source code from SCM
             }
         }
 
         stage('Install Dependencies') {
             steps {
                 script {
-                    sh 'composer install --no-interaction --prefer-dist'
+                    bat 'composer install --no-interaction --prefer-dist'  // Use bat instead of sh for Windows
                 }
             }
         }
@@ -25,8 +25,8 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
-                    sh 'chmod +x vendor/bin/phpunit'
-                    sh 'vendor/bin/phpunit --config phpunit.xml'
+                    bat 'chmod +x vendor/bin/phpunit'  // Make the PHPUnit script executable (optional in Windows, can be removed)
+                    bat 'vendor/bin/phpunit --config phpunit.xml'  // Run PHPUnit tests
                 }
             }
         }
@@ -34,14 +34,14 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    withSonarQubeEnv('MySonarQubeServer') {
+                    withSonarQubeEnv('MySonarQubeServer') {  // Ensure 'MySonarQubeServer' is correctly configured in Jenkins
                         bat """
                         C:\\sonar-scanner-6.2.1.4610-windows-x64\\bin\\sonar-scanner.bat ^
                         -Dsonar.projectKey=tp-jenkinse ^
                         -Dsonar.sources=./ ^
                         -Dsonar.host.url=${SONAR_HOST_URL} ^
                         -Dsonar.login=${SONAR_TOKEN}
-                        """
+                        """  // Run SonarQube analysis with the full path to the sonar-scanner.bat file
                     }
                 }
             }
@@ -50,10 +50,11 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline completed successfully.'
+            echo 'Pipeline completed successfully.'  // Display success message
         }
         failure {
-            echo 'Pipeline failed.'
+            echo 'Pipeline failed.'  // Display failure message
         }
     }
 }
+
