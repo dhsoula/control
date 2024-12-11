@@ -27,7 +27,8 @@ pipeline {
         stage('Code Analysis') {
             steps {
                 script {
-                    sh 'C:\\sonar-scanner-6.2.1.4610-windows-x64\\bin\\sonar-scanner.bat -Dsonar.projectKey=tp-jenkinse -Dsonar.sources=. -Dsonar.tests=tests -Dsonar.host.url=http://localhost:9000 -Dsonar.token=${SONAR_TOKEN}'
+                    // Utiliser la commande 'bat' pour exécuter SonarScanner sur Windows
+                    bat '"C:\\sonar-scanner-6.2.1.4610-windows-x64\\bin\\sonar-scanner.bat" -Dsonar.projectKey=tp-jenkinse -Dsonar.sources=. -Dsonar.tests=tests -Dsonar.host.url=http://localhost:9000 -Dsonar.token=${SONAR_TOKEN}'
                 }
             }
         }
