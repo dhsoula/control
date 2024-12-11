@@ -2,10 +2,7 @@ pipeline {
     agent any
 
     environment {
-        // Chemin vers le sonar-scanner installé sur votre machine
-        SONAR_SCANNER_HOME = 'C:\\Users\\ADMIN\\OneDrive\\Bureau\\AGIL\\jenkins_home\\sonar-scanner\\bin'  
-        // Ajouter sonar-scanner au PATH de l'environnement
-        PATH = "${env.PATH};${env.SONAR_SCANNER_HOME}"
+
         SONAR_TOKEN = credentials('sonar-token2')
         SONAR_HOST_URL = 'http://localhost:9000'
     }
