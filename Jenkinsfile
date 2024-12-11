@@ -2,8 +2,10 @@ pipeline {
     agent any
 
     environment {
-        SONAR_TOKEN = credentials('sonar-token2')  // Récupère le jeton SonarQube depuis les Credentials de Jenkins
-        SONAR_HOST_URL = 'http://localhost:9000'   // URL du serveur SonarQube
+        SONAR_SCANNER_HOME = 'C:\\sonar-scanner-6.2.1.4610-windows-x64\\bin'  // Spécifiez le chemin exact sur votre machine
+        PATH = "${env.PATH}:${env.SONAR_SCANNER_HOME}"
+        SONAR_TOKEN = credentials('sonar-token2')
+        SONAR_HOST_URL = 'http://localhost:9000'
     }
 
     stages {
@@ -16,7 +18,6 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    // Installe les dépendances PHP via Composer
                     sh 'composer install --no-interaction --prefer-dist'
                 }
             }
@@ -25,7 +26,6 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
-                    // Rendre phpunit exécutable et exécuter les tests
                     sh 'chmod +x vendor/bin/phpunit'
                     sh 'vendor/bin/phpunit --config phpunit.xml'
                 }
@@ -35,9 +35,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    // Utilisation de l'environnement SonarQube configuré dans Jenkins
                     withSonarQubeEnv('MySonarQubeServer') {
-                        // Lancer l'analyse avec le scanner SonarQube et le projet spécifique
                         sh """
                         sonar-scanner \
                         -Dsonar.projectKey=tp-jenkinse \
@@ -60,3 +58,4 @@ pipeline {
         }
     }
 }
+
