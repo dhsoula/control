@@ -39,15 +39,14 @@ pipeline {
             steps {
                 withSonarQubeEnv('SonarQube server') {  // Assurez-vous que SonarQube est bien configuré dans Jenkins sous ce nom
                     script {
-                        // Utiliser le chemin complet vers le sonar-scanner.bat sur un système Windows
-                        bat '''
-                            "C:\\sonar-scanner-6.2.1.4610-windows-x64\\bin\\sonar-scanner.bat" 
-                                -Dsonar.projectKey=tp-jenkins
-                                -Dsonar.sources=.
-                                -Dsonar.tests=tests  // Modifier le chemin des tests si nécessaire
-                                -Dsonar.host.url=http://localhost:9000
-                                -Dsonar.token=${SONAR_TOKEN}  // Utilisation du token SonarQube récupéré des credentials Jenkins
-                        '''
+                        // Exécuter l'analyse SonarQube
+                        sonarScanner(
+                            projectKey: 'tp-jenkinse',
+                            projectName: 'My PHP Project',
+                            sources: '.',
+                            tests: 'tests',
+                            login: "${SONAR_TOKEN}"
+                        )
                     }
                 }
             }
@@ -63,3 +62,4 @@ pipeline {
         }
     }
 }
+
