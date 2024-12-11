@@ -17,7 +17,11 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    sh 'composer install --no-interaction --prefer-dist'  // Use sh for Unix-based systems
+                    if (isUnix()) {
+                        sh 'composer install --no-interaction --prefer-dist'  // For Unix-based systems
+                    } else {
+                        bat 'composer install --no-interaction --prefer-dist'  // For Windows systems
+                    }
                 }
             }
         }
@@ -25,7 +29,9 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
-                    sh 'chmod +x vendor/bin/phpunit'  // Make the PHPUnit script executable (optional in Unix-based systems)
+                    if (isUnix()) {
+                        sh 'chmod +x vendor/bin/phpunit'  // Make the PHPUnit script executable on Unix-based systems
+                    }
                     sh 'vendor/bin/phpunit --config phpunit.xml'  // Run PHPUnit tests
                 }
             }
@@ -35,13 +41,25 @@ pipeline {
             steps {
                 script {
                     withSonarQubeEnv('MySonarQubeServer') {  // Ensure 'MySonarQubeServer' is correctly configured in Jenkins
-                        bat """
-                        C:\\sonar-scanner-6.2.1.4610-windows-x64\\bin\\sonar-scanner.bat ^
-                        -Dsonar.projectKey=tp-jenkinse ^
-                        -Dsonar.sources=./ ^
-                        -Dsonar.host.url=${SONAR_HOST_URL} ^
-                        -Dsonar.login=${SONAR_TOKEN}
-                        """  // Use bat for SonarQube analysis on Windows
+                        if (isUnix()) {
+                            // Use sh for Unix-based systems
+                            sh """
+                            sonar-scanner \
+                            -Dsonar.projectKey=tp-jenkinse \
+                            -Dsonar.sources=./ \
+                            -Dsonar.host.url=${SONAR_HOST_URL} \
+                            -Dsonar.login=${SONAR_TOKEN}
+                            """
+                        } else {
+                            // Use bat for Windows
+                            bat """
+                            C:\\sonar-scanner-6.2.1.4610-windows-x64\\bin\\sonar-scanner.bat ^ 
+                            -Dsonar.projectKey=tp-jenkinse ^ 
+                            -Dsonar.sources=./ ^ 
+                            -Dsonar.host.url=${SONAR_HOST_URL} ^ 
+                            -Dsonar.login=${SONAR_TOKEN}
+                            """
+                        }
                     }
                 }
             }
