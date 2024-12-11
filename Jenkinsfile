@@ -1,14 +1,17 @@
 pipeline {
     agent any
+    
     environment {
         SONAR_TOKEN = credentials('sonar_token')
     }
+    
     stages {
         stage('Checkout SCM') {
             steps {
                 checkout scm
             }
         }
+        
         stage('Install Dependencies') {
             steps {
                 script {
@@ -16,6 +19,7 @@ pipeline {
                 }
             }
         }
+        
         stage('Run Tests') {
             steps {
                 script {
@@ -24,14 +28,26 @@ pipeline {
                 }
             }
         }
+        
         stage('Code Analysis') {
             steps {
                 script {
-                     sh '"C:\\sonar-scanner-6.2.1.4610-windows-x64\\bin\\sonar-scanner.bat" -X -Dsonar.projectKey=tp-jenkinse -Dsonar.sources=. -Dsonar.tests=tests -Dsonar.host.url=http://localhost:9000 -Dsonar.token=${SONAR_TOKEN}'
+                    // Utilisation de Docker pour exécuter SonarScanner
+                    sh """
+                        docker run --rm \
+                            -e SONAR_HOST_URL=http://localhost:9000 \
+                            -e SONAR_LOGIN=${SONAR_TOKEN} \
+                            -v ${PWD}:/usr/src \
+                            sonarsource/sonar-scanner-cli \
+                            -Dsonar.projectKey=tp-jenkinse \
+                            -Dsonar.sources=. \
+                            -Dsonar.tests=tests
+                    """
                 }
             }
         }
     }
+    
     post {
         success {
             echo 'Pipeline completed successfully.'
