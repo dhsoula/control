@@ -2,8 +2,8 @@ pipeline {
     agent any
     
     tools {
-        // Utiliser l'outil 'SonarQube Scanner' installé automatiquement
-        sonarScanner 'sonar-scanner'  // Nom de l'outil configuré dans Jenkins
+        // Utilisation du bon nom de l'outil configuré dans Jenkins
+        sonarQubeScanner 'SonarQubeScanner'  // Nom correct de l'outil configuré
     }
     
     environment {
