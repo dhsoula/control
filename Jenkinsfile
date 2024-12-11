@@ -17,7 +17,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    bat 'composer install --no-interaction --prefer-dist'  // Use bat instead of sh for Windows
+                    sh 'composer install --no-interaction --prefer-dist'  // Use sh for Unix-based systems
                 }
             }
         }
@@ -25,8 +25,8 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
-                    bat 'chmod +x vendor/bin/phpunit'  // Make the PHPUnit script executable (optional in Windows, can be removed)
-                    bat 'vendor/bin/phpunit --config phpunit.xml'  // Run PHPUnit tests
+                    sh 'chmod +x vendor/bin/phpunit'  // Make the PHPUnit script executable (optional in Unix-based systems)
+                    sh 'vendor/bin/phpunit --config phpunit.xml'  // Run PHPUnit tests
                 }
             }
         }
@@ -41,7 +41,7 @@ pipeline {
                         -Dsonar.sources=./ ^
                         -Dsonar.host.url=${SONAR_HOST_URL} ^
                         -Dsonar.login=${SONAR_TOKEN}
-                        """  // Run SonarQube analysis with the full path to the sonar-scanner.bat file
+                        """  // Use bat for SonarQube analysis on Windows
                     }
                 }
             }
@@ -57,4 +57,3 @@ pipeline {
         }
     }
 }
-
