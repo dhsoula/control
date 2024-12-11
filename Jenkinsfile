@@ -1,8 +1,14 @@
 pipeline {
     agent any
     
+    tools {
+        // Utiliser l'outil 'SonarQube Scanner' installé automatiquement
+        sonarScanner 'sonar-scanner'  // Nom de l'outil configuré dans Jenkins
+    }
+    
     environment {
         SONAR_TOKEN = credentials('sonar_token')
+        SONAR_HOST_URL = 'http://localhost:9000' // URL du serveur SonarQube
     }
     
     stages {
@@ -32,17 +38,15 @@ pipeline {
         stage('Code Analysis') {
             steps {
                 script {
-                    // Utilisation de Docker pour exécuter SonarScanner
-                    sh """
-                        docker run --rm \
-                            -e SONAR_HOST_URL=http://localhost:9000 \
-                            -e SONAR_LOGIN=${SONAR_TOKEN} \
-                            -v ${PWD}:/usr/src \
-                            sonarsource/sonar-scanner-cli \
+                    // Exécuter SonarQube Scanner avec les paramètres nécessaires
+                    withSonarQubeEnv('SonarQube') {  // Utilise l'environnement SonarQube configuré
+                        sh """
+                            sonar-scanner \
                             -Dsonar.projectKey=tp-jenkinse \
                             -Dsonar.sources=. \
                             -Dsonar.tests=tests
-                    """
+                        """
+                    }
                 }
             }
         }
