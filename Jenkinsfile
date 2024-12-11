@@ -39,9 +39,9 @@ pipeline {
             steps {
                 withSonarQubeEnv('SonarQube server') {  // Assurez-vous que SonarQube est bien configuré dans Jenkins sous ce nom
                     script {
-                        // Exécuter l'analyse de SonarQube avec le token récupéré
-                        sh '''
-                            sonar-scanner
+                        // Utiliser le chemin complet vers le sonar-scanner.bat sur un système Windows
+                        bat '''
+                            "C:\\sonar-scanner-6.2.1.4610-windows-x64\\bin\\sonar-scanner.bat" 
                                 -Dsonar.projectKey=tp-jenkins
                                 -Dsonar.sources=.
                                 -Dsonar.tests=tests  // Modifier le chemin des tests si nécessaire
