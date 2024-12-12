@@ -7,7 +7,8 @@ pipeline {
     }
 
     tools {
-        sonarQube 'sonar-scanner'  // Ensure this matches the name in your Jenkins Global Tool Configuration
+        // Correct tool type for SonarQube
+        sonarScanner 'sonar-scanner' // This refers to the name in Jenkins Global Tool Configuration
     }
 
     stages {
@@ -64,4 +65,5 @@ pipeline {
         }
     }
 }
+
 
