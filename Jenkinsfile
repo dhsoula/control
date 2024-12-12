@@ -4,6 +4,7 @@ pipeline {
     environment {
         SONAR_TOKEN = credentials('sonar-token2')  // Get the SonarQube token from Jenkins credentials
         SONAR_HOST_URL = 'http://localhost:9000'   // SonarQube server URL
+        SCANNER_HOME = 'C:\\Users\\ADMIN\\OneDrive\\Bureau\\AGIL\\jenkins_home\\plugins\\sonar-scanner\\bin\\sonar-scanner.bat'
     }
 
     stages {
@@ -36,11 +37,10 @@ pipeline {
             }
         }
 
-        stage('sonar analsus') {
+        stage('SonarQube Analysis') {
             steps {
                  withSonarQubeEnv('MySonarQubeServer') {
-                    sh ''' sonar-scanner -Dsonar.projectName=tp \
-                    -Dsonar.projectKey=tp-jenkins'''
+                    sh "${SCANNER_HOME} -Dsonar.projectName=tp -Dsonar.java.binaries=. -Dsonar.projectKey=tp-jenkins"
                 }
             }
         }
