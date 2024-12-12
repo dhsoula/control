@@ -6,6 +6,10 @@ pipeline {
         SONAR_HOST_URL = 'http://localhost:9000'  // SonarQube server URL
     }
 
+    tools {
+        sonarQube 'sonar-scanner' // Use the exact name configured in Jenkins Global Tool Configuration
+    }
+
     stages {
         stage('Checkout SCM') {
             steps {
@@ -39,15 +43,16 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('MySonarQubeServer') {
-                    sh """
-                    sonar-scanner \
-                        -Dsonar.projectName=tp \
-                        -Dsonar.projectKey=tp \
-                        -Dsonar.sources=src \
-                        -Dsonar.language=php \
-                        -Dsonar.host.url=${SONAR_HOST_URL} \
-                        -Dsonar.login=${SONAR_TOKEN}
-                    """
+                    script {
+                        def scannerHome = tool 'sonar-scanner' // Use the configured tool name
+                        sh """
+                            ${scannerHome}/bin/sonar-scanner \
+                                -Dsonar.projectKey=tp \
+                                -Dsonar.sources=src \
+                                -Dsonar.host.url=${SONAR_HOST_URL} \
+                                -Dsonar.login=${SONAR_TOKEN}
+                        """
+                    }
                 }
             }
         }
