@@ -4,11 +4,7 @@ pipeline {
     environment {
         SONAR_TOKEN = credentials('sonartk')  // SonarQube token
         SONAR_HOST_URL = 'http://localhost:9000'  // SonarQube server URL
-    }
-
-    tools {
-        // Correct tool type for SonarQube
-        sonarScanner 'sonar-scanner' // This refers to the name in Jenkins Global Tool Configuration
+        SONAR_SCANNER_PATH = '/path/to/sonar-scanner/bin/sonar-scanner'  // Direct path to Sonar Scanner
     }
 
     stages {
@@ -43,9 +39,9 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('MySonarQubeServer') {
+                script {
                     sh """
-                        sonar-scanner \
+                        ${SONAR_SCANNER_PATH} \
                             -Dsonar.projectKey=tp \
                             -Dsonar.sources=src \
                             -Dsonar.host.url=${SONAR_HOST_URL} \
