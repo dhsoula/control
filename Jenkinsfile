@@ -4,7 +4,7 @@ pipeline {
     environment {
         SONAR_TOKEN = credentials('sonar-token2')  // Get the SonarQube token from Jenkins credentials
         SONAR_HOST_URL = 'http://localhost:9000'   // SonarQube server URL
-        SONAR_SCANNER_HOME = 'C:\\sonar-scanner-6.2.1.4610-windows-x64'  // Path to SonarQube Scanner on Windows
+        SCANNER_HOME=tool 'sonar'    
     }
 
     stages {
@@ -37,30 +37,12 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
+        stage('sonar analsus') {
             steps {
-                script {
-                    withSonarQubeEnv('MySonarQubeServer') {  // Ensure 'MySonarQubeServer' is correctly configured in Jenkins
-                        if (isUnix()) {
-                            // Use sh for Unix-based systems
-                            sh """
-                            sonar-scanner \
-                            -Dsonar.projectKey=tp-jenkinse \
-                            -Dsonar.sources=./ \
-                            -Dsonar.host.url=${SONAR_HOST_URL} \
-                            -Dsonar.login=${SONAR_TOKEN}
-                            """
-                        } else {
-                            // Use bat for Windows
-                            bat """
-                            C:\\sonar-scanner-6.2.1.4610-windows-x64\\bin\\sonar-scanner.bat ^ 
-                            -Dsonar.projectKey=tp-jenkinse ^ 
-                            -Dsonar.sources=./ ^ 
-                            -Dsonar.host.url=${SONAR_HOST_URL} ^ 
-                            -Dsonar.login=${SONAR_TOKEN}
-                            """
-                        }
-                    }
+                 withSonarQubeEnv('sonar') {
+                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=tp \
+                    -Dsonar.java.binaries=. \
+                    -Dsonar.projectKey=tp-jenkins'''
                 }
             }
         }
