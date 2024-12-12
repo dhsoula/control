@@ -41,7 +41,6 @@ pipeline {
             steps {
                  withSonarQubeEnv('MySonarQubeServer') {
                     sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=tp \
-                    -Dsonar.java.binaries=. \
                     -Dsonar.projectKey=tp-jenkins'''
                 }
             }
