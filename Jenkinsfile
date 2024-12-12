@@ -2,9 +2,8 @@ pipeline {
     agent any
 
     environment {
-        SONAR_TOKEN = credentials('sonar-token2')  // Get the SonarQube token from Jenkins credentials
-        SONAR_HOST_URL = 'http://localhost:9000'   // SonarQube server URL
-        SCANNER_HOME = 'C:\\Users\\ADMIN\\OneDrive\\Bureau\\AGIL\\jenkins_home\\plugins\\sonar-scanner\\bin\\sonar-scanner.bat'
+        SONAR_TOKEN = credentials('sonartk')  // SonarQube token
+        SONAR_HOST_URL = 'http://localhost:9000'  // SonarQube server URL
     }
 
     stages {
@@ -30,17 +29,25 @@ pipeline {
             steps {
                 script {
                     if (isUnix()) {
-                        sh 'chmod +x vendor/bin/phpunit'  // Make the PHPUnit script executable on Unix-based systems
+                        sh 'chmod +x vendor/bin/phpunit'  // Make the PHPUnit script executable
                     }
-                    sh 'vendor/bin/phpunit --config phpunit.xml'  // Run PHPUnit tests
+                    sh 'vendor/bin/phpunit --configuration phpunit.xml'  // Run PHPUnit tests
                 }
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                 withSonarQubeEnv('MySonarQubeServer') {
-                    sh "${SCANNER_HOME} -Dsonar.projectName=tp -Dsonar.java.binaries=. -Dsonar.projectKey=tp-jenkins"
+                withSonarQubeEnv('MySonarQubeServer') {
+                    sh """
+                    sonar-scanner \
+                        -Dsonar.projectName=tp \
+                        -Dsonar.projectKey=tp \
+                        -Dsonar.sources=src \
+                        -Dsonar.language=php \
+                        -Dsonar.host.url=${SONAR_HOST_URL} \
+                        -Dsonar.login=${SONAR_TOKEN}
+                    """
                 }
             }
         }
@@ -55,3 +62,4 @@ pipeline {
         }
     }
 }
+
