@@ -7,7 +7,7 @@ pipeline {
     }
 
     tools {
-        sonarQube 'sonar-scanner' // Use the exact name configured in Jenkins Global Tool Configuration
+        sonarQube 'sonar-scanner'  // Ensure this matches the name in your Jenkins Global Tool Configuration
     }
 
     stages {
@@ -43,16 +43,13 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('MySonarQubeServer') {
-                    script {
-                        def scannerHome = tool 'sonar-scanner' // Use the configured tool name
-                        sh """
-                            ${scannerHome}/bin/sonar-scanner \
-                                -Dsonar.projectKey=tp \
-                                -Dsonar.sources=src \
-                                -Dsonar.host.url=${SONAR_HOST_URL} \
-                                -Dsonar.login=${SONAR_TOKEN}
-                        """
-                    }
+                    sh """
+                        sonar-scanner \
+                            -Dsonar.projectKey=tp \
+                            -Dsonar.sources=src \
+                            -Dsonar.host.url=${SONAR_HOST_URL} \
+                            -Dsonar.login=${SONAR_TOKEN}
+                    """
                 }
             }
         }
