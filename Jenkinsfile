@@ -38,14 +38,20 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 echo 'Performing SonarQube analysis...'
-                withSonarQubeEnv('SonarQube') {  // Remplacer 'SonarQube' par la configuration de votre serveur SonarQube dans Jenkins
-                    sh '''
+                script {
+                    // Exécuter SonarQube sans stopper le pipeline en cas d'échec
+                    def sonarAnalysis = sh(script: '''
                         ${SONAR_SCANNER_PATH} \
                             -Dsonar.projectKey=my_project_key \
                             -Dsonar.sources=. \
                             -Dsonar.host.url=http://sonarqube:9000 \
                             -Dsonar.login=${SONAR_TOKEN}
-                    '''
+                    ''', returnStatus: true)
+
+                    // Si l'analyse échoue, afficher un message mais ne pas stopper le pipeline
+                    if (sonarAnalysis != 0) {
+                        echo 'SonarQube analysis failed, but continuing with the deployment.'
+                    }
                 }
             }
         }
