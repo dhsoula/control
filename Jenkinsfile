@@ -4,6 +4,7 @@ pipeline {
     environment {
         SONAR_SCANNER_PATH = '/opt/sonar-scanner-4.8.0.2856-linux/bin/sonar-scanner' // Mettre à jour avec le bon chemin
         SONAR_TOKEN = credentials('sonartk')  // Remplacer par l'ID de votre credential SonarQube dans Jenkins
+        DEPLOY_DIR = 'C:\\xampp\\htdocs\\your_project_folder'  // Répertoire de déploiement XAMPP
     }
 
     stages {
@@ -48,6 +49,15 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy to XAMPP') {
+            steps {
+                echo 'Deploying to XAMPP...'
+                bat '''
+                    xcopy /E /I /Y .\\* ${DEPLOY_DIR}\\
+                ''' // Cette commande copie tous les fichiers vers le répertoire XAMPP
+            }
+        }
     }
 
     post {
@@ -59,4 +69,3 @@ pipeline {
         }
     }
 }
-
