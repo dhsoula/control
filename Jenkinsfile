@@ -2,9 +2,8 @@ pipeline {
     agent any
 
     environment {
-        SONAR_SCANNER_PATH = '/opt/sonar-scanner-4.8.0.2856-linux/bin/sonar-scanner' // Mettre à jour avec le bon chemin
-        SONAR_TOKEN = credentials('sonartk')  // Remplacer par l'ID de votre credential SonarQube dans Jenkins
-        DEPLOY_DIR = 'C:\\xampp\\htdocs\\your_project_folder'  // Répertoire de déploiement XAMPP
+        SONAR_SCANNER_PATH = '/opt/sonar-scanner-4.8.0.2856-linux/bin/sonar-scanner' // Update with the correct path
+        SONAR_TOKEN = credentials('sonartk')  // Replace with your SonarQube credential ID in Jenkins
     }
 
     stages {
@@ -39,7 +38,7 @@ pipeline {
             steps {
                 echo 'Performing SonarQube analysis...'
                 script {
-                    // Exécuter SonarQube sans stopper le pipeline en cas d'échec
+                    // Run SonarQube analysis without stopping the pipeline on failure
                     def sonarAnalysis = sh(script: '''
                         ${SONAR_SCANNER_PATH} \
                             -Dsonar.projectKey=my_project_key \
@@ -51,12 +50,23 @@ pipeline {
             }
         }
 
-        stage('Deploy to XAMPP') {
+        stage('Build Docker Image') {
             steps {
-                echo 'Deploying to XAMPP...'
-                bat '''
-                    xcopy /E /I /Y .\\* ${DEPLOY_DIR}\\
-                ''' // Cette commande copie tous les fichiers vers le répertoire XAMPP
+                echo 'Building Docker image...'
+                sh '''
+                    docker build -t my_project_image .
+                '''
+            }
+        }
+
+        stage('Deploy with Docker') {
+            steps {
+                echo 'Deploying application using Docker...'
+                sh '''
+                    docker stop my_project_container || true
+                    docker rm my_project_container || true
+                    docker run -d --name my_project_container -p 8080:80 my_project_image
+                '''
             }
         }
     }
