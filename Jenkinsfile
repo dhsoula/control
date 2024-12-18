@@ -2,9 +2,8 @@ pipeline {
     agent any
 
     environment {
-        SONAR_HOST_URL = 'http://your-sonarqube-url:9000'  // Replace with your SonarQube URL
-        SONAR_TOKEN = credentials('sonartk')          // Jenkins credentials for SonarQube token
         SONAR_SCANNER_PATH = '/opt/sonar-scanner-4.8.0.2856-linux/bin/sonar-scanner' // Update with the correct installed path
+        SONAR_TOKEN = credentials('sonartk')  // Replace with your SonarQube credential ID in Jenkins
     }
 
     stages {
@@ -29,7 +28,7 @@ pipeline {
             steps {
                 echo 'Running PHPUnit tests...'
                 sh '''
-                    chmod +x vendor/bin/phpunit  // Make PHPUnit executable
+                    chmod +x vendor/bin/phpunit  # Make PHPUnit executable
                     vendor/bin/phpunit --configuration phpunit.xml
                 '''
             }
@@ -38,25 +37,27 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 echo 'Performing SonarQube analysis...'
-                sh '''
-                    chmod +x ${SONAR_SCANNER_PATH}  // Make SonarScanner executable
-                    ${SONAR_SCANNER_PATH} \
-                        -Dsonar.projectKey=tp \
-                        -Dsonar.sources=src \
-                        -Dsonar.host.url=${SONAR_HOST_URL} \
-                        -Dsonar.login=${SONAR_TOKEN}
-                '''
+                withSonarQubeEnv('SonarQube') {  // Replace 'SonarQube' with your Jenkins SonarQube server config
+                    sh '''
+                        ${SONAR_SCANNER_PATH} \
+                            -Dsonar.projectKey=my_project_key \
+                            -Dsonar.sources=. \
+                            -Dsonar.host.url=http://your-sonar-server:9000 \
+                            -Dsonar.login=${SONAR_TOKEN}
+                    '''
+                }
             }
         }
     }
 
     post {
         success {
-            echo 'Pipeline completed successfully!'
+            echo 'Pipeline completed successfully.'
         }
         failure {
             echo 'Pipeline failed. Check logs for details.'
         }
     }
 }
+
 
