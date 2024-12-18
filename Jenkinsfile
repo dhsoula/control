@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         SONAR_HOST_URL = 'http://your-sonarqube-url:9000'  // Replace with your SonarQube URL
-        SONAR_TOKEN = credentials('sonar-token')          // Use Jenkins credentials for security
+        SONAR_TOKEN = credentials('sonartk')          // Use Jenkins credentials for security
         SONAR_SCANNER_PATH = 'sonar-scanner-dir/sonar-scanner-4.8.0.2856-linux/bin/sonar-scanner'
     }
 
