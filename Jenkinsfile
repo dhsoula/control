@@ -3,8 +3,8 @@ pipeline {
 
     environment {
         SONAR_HOST_URL = 'http://your-sonarqube-url:9000'  // Replace with your SonarQube URL
-        SONAR_TOKEN = credentials('sonartk')          // Use Jenkins credentials for security
-        SONAR_SCANNER_PATH = 'sonar-scanner-dir/sonar-scanner-4.8.0.2856-linux/bin/sonar-scanner'
+        SONAR_TOKEN = credentials('sonartk')          // Jenkins credentials for SonarQube token
+        SONAR_SCANNER_PATH = '/opt/sonar-scanner-4.8.0.2856-linux/bin/sonar-scanner' // Update with the correct installed path
     }
 
     stages {
@@ -35,29 +35,11 @@ pipeline {
             }
         }
 
-        stage('Setup SonarScanner') {
-            steps {
-                script {
-                    echo 'Downloading SonarScanner locally...'
-                    sh '''
-                        # Download SonarScanner CLI to Jenkins workspace
-                        curl -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip
-                        
-                        # Unzip SonarScanner
-                        unzip sonar-scanner.zip -d sonar-scanner-dir
-                        
-                        # Make the SonarScanner executable
-                        chmod +x sonar-scanner-dir/sonar-scanner-4.8.0.2856-linux/bin/sonar-scanner
-                    '''
-                }
-            }
-        }
-
         stage('SonarQube Analysis') {
             steps {
                 echo 'Performing SonarQube analysis...'
                 sh '''
-                    # Run SonarScanner from workspace
+                    chmod +x ${SONAR_SCANNER_PATH}  // Make SonarScanner executable
                     ${SONAR_SCANNER_PATH} \
                         -Dsonar.projectKey=tp \
                         -Dsonar.sources=src \
@@ -77,3 +59,4 @@ pipeline {
         }
     }
 }
+
