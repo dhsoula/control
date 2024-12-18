@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        SONAR_SCANNER_PATH = '/opt/sonar-scanner-4.8.0.2856-linux/bin/sonar-scanner' // Update with the correct installed path
-        SONAR_TOKEN = credentials('sonartk')  // Replace with your SonarQube credential ID in Jenkins
+        SONAR_SCANNER_PATH = '/opt/sonar-scanner-4.8.0.2856-linux/bin/sonar-scanner' // Mettre à jour avec le bon chemin
+        SONAR_TOKEN = credentials('sonartk')  // Remplacer par l'ID de votre credential SonarQube dans Jenkins
     }
 
     stages {
@@ -37,12 +37,12 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 echo 'Performing SonarQube analysis...'
-                withSonarQubeEnv('SonarQube') {  // Replace 'SonarQube' with your Jenkins SonarQube server config
+                withSonarQubeEnv('SonarQube') {  // Remplacer 'SonarQube' par la configuration de votre serveur SonarQube dans Jenkins
                     sh '''
                         ${SONAR_SCANNER_PATH} \
                             -Dsonar.projectKey=my_project_key \
                             -Dsonar.sources=. \
-                            -Dsonar.host.url=http://your-sonar-server:9000 \
+                            -Dsonar.host.url=http://sonarqube:9000 \
                             -Dsonar.login=${SONAR_TOKEN}
                     '''
                 }
@@ -59,5 +59,4 @@ pipeline {
         }
     }
 }
-
 
