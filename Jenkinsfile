@@ -47,11 +47,6 @@ pipeline {
                             -Dsonar.host.url=http://sonarqube:9000 \
                             -Dsonar.login=${SONAR_TOKEN}
                     ''', returnStatus: true)
-
-                    // Si l'analyse échoue, afficher un message mais ne pas stopper le pipeline
-                    if (sonarAnalysis != 0) {
-                        echo 'SonarQube analysis failed, but continuing with the deployment.'
-                    }
                 }
             }
         }
@@ -75,3 +70,4 @@ pipeline {
         }
     }
 }
+
