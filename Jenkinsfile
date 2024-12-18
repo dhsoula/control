@@ -4,12 +4,13 @@ pipeline {
     environment {
         SONAR_TOKEN = credentials('sonartk')  // SonarQube token
         SONAR_HOST_URL = 'http://localhost:9000'  // SonarQube server URL
-        SONAR_SCANNER_PATH = '/path/to/sonar-scanner/bin/sonar-scanner'  // Direct path to Sonar Scanner
+        SONAR_SCANNER_PATH = '/opt/sonar-scanner-4.8.0.2856-linux/bin/sonar-scanner'  // Correct path to Sonar Scanner
     }
 
     stages {
         stage('Checkout SCM') {
             steps {
+                echo 'Checking out source code from SCM...'
                 checkout scm  // Checkout the source code from SCM
             }
         }
@@ -17,6 +18,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
+                    echo 'Installing project dependencies...'
                     if (isUnix()) {
                         sh 'composer install --no-interaction --prefer-dist'  // For Unix-based systems
                     } else {
@@ -29,8 +31,9 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
+                    echo 'Running PHPUnit tests...'
                     if (isUnix()) {
-                        sh 'chmod +x vendor/bin/phpunit'  // Make the PHPUnit script executable
+                        sh 'chmod +x vendor/bin/phpunit'  // Make PHPUnit executable
                     }
                     sh 'vendor/bin/phpunit --configuration phpunit.xml'  // Run PHPUnit tests
                 }
@@ -40,7 +43,9 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
+                    echo 'Performing SonarQube analysis...'
                     sh """
+                        chmod +x ${SONAR_SCANNER_PATH}  // Ensure sonar-scanner is executable
                         ${SONAR_SCANNER_PATH} \
                             -Dsonar.projectKey=tp \
                             -Dsonar.sources=src \
@@ -54,12 +59,10 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline completed successfully.'  // Display success message
+            echo 'Pipeline completed successfully.'  // Success message
         }
         failure {
-            echo 'Pipeline failed.'  // Display failure message
+            echo 'Pipeline failed.'  // Failure message
         }
     }
 }
-
-
